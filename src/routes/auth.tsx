@@ -1,0 +1,155 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { z } from "zod";
+import { toast } from "sonner";
+import { GraduationCap } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+export const Route = createFileRoute("/auth")({
+  head: () => ({
+    meta: [
+      { title: "Sign in — FYPMS" },
+      { name: "description", content: "Sign in or create a student or supervisor account on FYPMS." },
+      { property: "og:title", content: "Sign in — FYPMS" },
+      { property: "og:description", content: "Access your final year project workspace." },
+    ],
+  }),
+  component: AuthPage,
+});
+
+const signUpSchema = z.object({
+  full_name: z.string().trim().min(2, "Enter your full name").max(100),
+  email: z.string().trim().email("Enter a valid email"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  role: z.enum(["student", "supervisor"]),
+  department: z.string().trim().max(100).optional(),
+  reg_number: z.string().trim().max(40).optional(),
+});
+
+function AuthPage() {
+  const navigate = useNavigate();
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [role, setRole] = useState<"student" | "supervisor">("student");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>;
+    setErrors({});
+    setBusy(true);
+    try {
+      if (mode === "signin") {
+        if (!fd.email || !fd.password) {
+          setErrors({ email: !fd.email ? "Email is required" : "", password: !fd.password ? "Password is required" : "" });
+          return;
+        }
+        const { error } = await supabase.auth.signInWithPassword({ email: fd.email, password: fd.password });
+        if (error) return void toast.error(error.message);
+        navigate({ to: "/dashboard" });
+      } else {
+        const parsed = signUpSchema.safeParse({ ...fd, role });
+        if (!parsed.success) {
+          const errs: Record<string, string> = {};
+          parsed.error.issues.forEach((i) => (errs[String(i.path[0])] = i.message));
+          return void setErrors(errs);
+        }
+        const { email, password, ...meta } = parsed.data;
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.location.origin + "/dashboard", data: meta },
+        });
+        if (error) return void toast.error(error.message);
+        if (data.session) navigate({ to: "/dashboard" });
+        else setSent(true);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const err = (k: string) => errors[k] && <p className="text-xs text-destructive">{errors[k]}</p>;
+
+  return (
+    <div className="grid min-h-screen md:grid-cols-2">
+      <div className="hidden bg-hero p-12 text-ink-foreground md:flex md:flex-col md:justify-between">
+        <Link to="/" className="flex items-center gap-2 font-display text-xl font-semibold">
+          <GraduationCap className="h-6 w-6 text-accent" /> FYPMS
+        </Link>
+        <p className="font-display text-4xl leading-tight">“A good project is a well-planned project.”</p>
+      </div>
+      <div className="flex items-center justify-center p-6">
+        <div className="w-full max-w-sm">
+          {sent ? (
+            <div className="text-center">
+              <h1 className="text-3xl font-semibold">Check your email</h1>
+              <p className="mt-3 text-sm text-muted-foreground">We sent a confirmation link. Click it to activate your account.</p>
+              <Button variant="outline" className="mt-6" onClick={() => { setSent(false); setMode("signin"); }}>Back to sign in</Button>
+            </div>
+          ) : (
+            <>
+              <h1 className="text-3xl font-semibold">{mode === "signin" ? "Welcome back" : "Create account"}</h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {mode === "signin" ? "Sign in to your project workspace." : "Join as a student or supervisor."}
+              </p>
+              <form onSubmit={onSubmit} className="mt-8 space-y-4" noValidate>
+                {mode === "signup" && (
+                  <>
+                    <Tabs value={role} onValueChange={(v) => setRole(v as typeof role)}>
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="student">Student</TabsTrigger>
+                        <TabsTrigger value="supervisor">Supervisor</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="full_name">Full name</Label>
+                      <Input id="full_name" name="full_name" />
+                      {err("full_name")}
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="department">Department</Label>
+                        <Input id="department" name="department" placeholder="BS IT" />
+                      </div>
+                      {role === "student" && (
+                        <div className="space-y-1.5">
+                          <Label htmlFor="reg_number">Reg. number</Label>
+                          <Input id="reg_number" name="reg_number" />
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+                <div className="space-y-1.5">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" name="email" type="email" autoComplete="email" />
+                  {err("email")}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="password">Password</Label>
+                  <Input id="password" name="password" type="password" autoComplete={mode === "signin" ? "current-password" : "new-password"} />
+                  {err("password")}
+                </div>
+                <Button type="submit" className="w-full" disabled={busy}>
+                  {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+                </Button>
+              </form>
+              <p className="mt-6 text-center text-sm text-muted-foreground">
+                {mode === "signin" ? "New here?" : "Already have an account?"}{" "}
+                <button className="font-semibold text-primary hover:underline" onClick={() => { setErrors({}); setMode(mode === "signin" ? "signup" : "signin"); }}>
+                  {mode === "signin" ? "Create an account" : "Sign in"}
+                </button>
+              </p>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
