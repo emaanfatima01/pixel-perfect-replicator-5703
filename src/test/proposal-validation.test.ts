@@ -38,24 +38,24 @@ describe("proposal form validation", () => {
   });
 
   it("whitespace-only title is treated as missing", () => {
-    expect(proposalErrors({ ...valid, title: "     " })?.title).toBe("Title must be at least 5 characters");
+    expect(proposalErrors({ ...valid, title: "     " })?.['title']).toBe("Title must be at least 5 characters");
   });
 
   it("title needs at least 5 characters", () => {
-    expect(proposalErrors({ ...valid, title: "Abcd" })?.title).toBeTruthy();
+    expect(proposalErrors({ ...valid, title: "Abcd" })?.['title']).toBeTruthy();
     expect(proposalErrors({ ...valid, title: "Abcde" })).toBeNull();
   });
 
   it("title over 200 characters is rejected", () => {
-    expect(proposalErrors({ ...valid, title: "a".repeat(201) })?.title).toBeTruthy();
+    expect(proposalErrors({ ...valid, title: "a".repeat(201) })?.['title']).toBeTruthy();
   });
 
   it("problem statement needs at least 20 characters", () => {
-    expect(proposalErrors({ ...valid, problem_statement: "a".repeat(19) })?.problem_statement).toBeTruthy();
+    expect(proposalErrors({ ...valid, problem_statement: "a".repeat(19) })?.['problem_statement']).toBeTruthy();
   });
 
   it("supervisor must be a real selection", () => {
-    expect(proposalErrors({ ...valid, supervisor_id: "not-a-supervisor" })?.supervisor_id).toBe("Choose a supervisor");
+    expect(proposalErrors({ ...valid, supervisor_id: "not-a-supervisor" })?.['supervisor_id']).toBe("Choose a supervisor");
   });
 
   it("attachments over 20 MB are rejected, 20 MB is allowed", () => {
