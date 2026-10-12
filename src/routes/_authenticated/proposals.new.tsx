@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
 import { CATEGORIES, type Project } from "@/lib/fyp";
+import { proposalSchema, attachmentTooLarge } from "@/lib/proposal-schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,17 +19,7 @@ export const Route = createFileRoute("/_authenticated/proposals/new")({
   component: ProposalForm,
 });
 
-const schema = z.object({
-  title: z.string().trim().min(5, "Title must be at least 5 characters").max(200),
-  problem_statement: z.string().trim().min(20, "Describe the problem (min 20 characters)").max(5000),
-  objectives: z.string().trim().min(10, "List your objectives").max(5000),
-  proposed_solution: z.string().trim().min(20, "Describe your solution (min 20 characters)").max(5000),
-  scope: z.string().trim().min(10, "Define the scope").max(5000),
-  technologies: z.string().trim().min(2, "List technologies and tools").max(1000),
-  expected_outcomes: z.string().trim().min(10, "Describe expected outcomes").max(5000),
-  category: z.string().min(1),
-  supervisor_id: z.string().uuid("Choose a supervisor"),
-});
+const schema = proposalSchema;
 
 const fields: { key: keyof z.infer<typeof schema>; label: string; long?: boolean }[] = [
   { key: "title", label: "Project title" },
