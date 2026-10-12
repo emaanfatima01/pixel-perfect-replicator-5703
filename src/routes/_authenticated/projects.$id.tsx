@@ -67,7 +67,7 @@ function ProjectPage() {
     try {
       const { error } = await supabase.from("projects").update({ status, reviewed_at: new Date().toISOString() }).eq("id", p.id);
       if (error) throw error;
-      const labels: Record<string, string> = { under_review: "Marked as under review", approved: "Proposal approved", revision_required: "Revision requested", rejected: "Proposal rejected" };
+      const labels: Record<ProposalStatus, string> = { draft: "Saved as draft", submitted: "Submitted", under_review: "Marked as under review", approved: "Proposal approved", revision_required: "Revision requested", rejected: "Proposal rejected" };
       await addFeedback(note ? `${labels[status]}: ${note}` : labels[status], status === "revision_required" ? "revision" : "status");
       toast.success(labels[status]);
       refresh();

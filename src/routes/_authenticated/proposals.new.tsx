@@ -35,7 +35,7 @@ function ProposalForm() {
   const { data: me } = useMe();
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const [values, setValues] = useState<Record<string, string>>({ category: CATEGORIES[0] });
+  const [values, setValues] = useState<Record<string, string>>({ category: CATEGORIES[0] ?? "" });
   const [file, setFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
@@ -122,7 +122,7 @@ function ProposalForm() {
         <div className="grid gap-5 md:grid-cols-2">
           <div className="space-y-1.5">
             <Label>Category</Label>
-            <Select value={values["category"] ?? CATEGORIES[0]} onValueChange={(v) => set("category", v)}>
+            <Select value={values["category"] ?? CATEGORIES[0] ?? ""} onValueChange={(v) => set("category", v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
             </Select>
