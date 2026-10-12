@@ -151,7 +151,7 @@ function ProjectPage() {
             )}
             {(isStudent || isReviewer) && <Button onClick={() => setEditing({ status: "pending", progress: 0 })}><Plus className="mr-1 h-4 w-4" /> Milestone</Button>}
           </div>
-          <Board milestones={milestones} onOpen={setEditing} />
+          <Board milestones={milestones} onOpen={(m) => setEditing(m)} />
         </TabsContent>
 
         <TabsContent value="feedback" className="mt-6">
@@ -300,7 +300,7 @@ function MilestoneDialog({ projectId, milestone, count, isReviewer, onClose, onS
           </div>
           <div className="space-y-2">
             <Label>Progress: {m.status === "completed" ? 100 : m.progress ?? 0}%</Label>
-            <Slider disabled={m.status === "completed"} value={[m.status === "completed" ? 100 : m.progress ?? 0]} max={100} step={5} onValueChange={([v]) => set("progress", v)} />
+            <Slider disabled={m.status === "completed"} value={[m.status === "completed" ? 100 : m.progress ?? 0]} max={100} step={5} onValueChange={([v]) => set("progress", v ?? 0)} />
           </div>
           <div className="space-y-1.5">
             <Label>Deliverable</Label>

@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/proposals/new")({
-  validateSearch: (s: Record<string, unknown>) => ({ id: typeof s.id === "string" ? s.id : undefined }),
+  validateSearch: (s: Record<string, unknown>) => ({ id: typeof s["id"] === "string" ? (s["id"] as string) : undefined }),
   head: () => ({ meta: [{ title: "Project proposal — FYPMS" }, { name: "description", content: "Write and submit your project proposal." }] }),
   component: ProposalForm,
 });
@@ -111,7 +111,7 @@ function ProposalForm() {
     }
   }
 
-  const set = (k: string, v: string) => setValues((s) => ({ ...s, [k]: v }));
+  const set = (k: string, v: string): void => setValues((s) => ({ ...s, [k]: v }));
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -132,20 +132,20 @@ function ProposalForm() {
         <div className="grid gap-5 md:grid-cols-2">
           <div className="space-y-1.5">
             <Label>Category</Label>
-            <Select value={values.category} onValueChange={(v) => set("category", v)}>
+            <Select value={values["category"] ?? CATEGORIES[0]} onValueChange={(v) => set("category", v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
             <Label>Supervisor preference</Label>
-            <Select value={values.supervisor_id ?? ""} onValueChange={(v) => set("supervisor_id", v)}>
+            <Select value={values["supervisor_id"] ?? ""} onValueChange={(v) => set("supervisor_id", v)}>
               <SelectTrigger><SelectValue placeholder={supervisors.length ? "Choose a supervisor" : "No supervisors registered yet"} /></SelectTrigger>
               <SelectContent>
                 {supervisors.map((s) => <SelectItem key={s.id} value={s.id}>{s.full_name}{s.department ? ` · ${s.department}` : ""}</SelectItem>)}
               </SelectContent>
             </Select>
-            {errors.supervisor_id && <p className="text-xs text-destructive">{errors.supervisor_id}</p>}
+            {errors["supervisor_id"] && <p className="text-xs text-destructive">{errors["supervisor_id"]}</p>}
           </div>
         </div>
         <div className="space-y-1.5">
