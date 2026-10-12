@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
 import { CATEGORIES, type Project } from "@/lib/fyp";
+import { proposalSchema, attachmentTooLarge, type ProposalInput } from "@/lib/proposal-schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,19 +18,9 @@ export const Route = createFileRoute("/_authenticated/proposals/new")({
   component: ProposalForm,
 });
 
-const schema = z.object({
-  title: z.string().trim().min(5, "Title must be at least 5 characters").max(200),
-  problem_statement: z.string().trim().min(20, "Describe the problem (min 20 characters)").max(5000),
-  objectives: z.string().trim().min(10, "List your objectives").max(5000),
-  proposed_solution: z.string().trim().min(20, "Describe your solution (min 20 characters)").max(5000),
-  scope: z.string().trim().min(10, "Define the scope").max(5000),
-  technologies: z.string().trim().min(2, "List technologies and tools").max(1000),
-  expected_outcomes: z.string().trim().min(10, "Describe expected outcomes").max(5000),
-  category: z.string().min(1),
-  supervisor_id: z.string().uuid("Choose a supervisor"),
-});
+const schema = proposalSchema;
 
-const fields: { key: keyof z.infer<typeof schema>; label: string; long?: boolean }[] = [
+const fields: { key: keyof ProposalInput; label: string; long?: boolean }[] = [
   { key: "title", label: "Project title" },
   { key: "problem_statement", label: "Problem statement", long: true },
   { key: "objectives", label: "Project objectives", long: true },
@@ -45,7 +35,7 @@ function ProposalForm() {
   const { data: me } = useMe();
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const [values, setValues] = useState<Record<string, string>>({ category: CATEGORIES[0] });
+  const [values, setValues] = useState<Record<string, string>>({ category: CATEGORIES[0] ?? "" });
   const [file, setFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
@@ -78,7 +68,7 @@ function ProposalForm() {
       toast.error("Please fix the highlighted fields");
       return;
     }
-    if (file && file.size > 20 * 1024 * 1024) return void toast.error("Attachment must be under 20 MB");
+    if (attachmentTooLarge(file)) return void toast.error("Attachment must be under 20 MB");
     setErrors({});
     setBusy(true);
     try {
@@ -132,7 +122,7 @@ function ProposalForm() {
         <div className="grid gap-5 md:grid-cols-2">
           <div className="space-y-1.5">
             <Label>Category</Label>
-            <Select value={values["category"] ?? CATEGORIES[0]} onValueChange={(v) => set("category", v)}>
+            <Select value={values["category"] ?? CATEGORIES[0] ?? ""} onValueChange={(v) => set("category", v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
             </Select>
