@@ -14,16 +14,295 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      announcements: {
+        Row: {
+          author_id: string | null
+          body: string
+          created_at: string
+          id: string
+          title: string
+        }
+        Insert: {
+          author_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          title: string
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          kind: string
+          milestone_id: string | null
+          project_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          kind?: string
+          milestone_id?: string | null
+          project_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          milestone_id?: string | null
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "milestones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      milestones: {
+        Row: {
+          created_at: string
+          deliverable_path: string | null
+          description: string
+          due_date: string | null
+          id: string
+          position: number
+          progress: number
+          project_id: string
+          start_date: string | null
+          status: Database["public"]["Enums"]["milestone_status"]
+          supervisor_comment: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deliverable_path?: string | null
+          description?: string
+          due_date?: string | null
+          id?: string
+          position?: number
+          progress?: number
+          project_id: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["milestone_status"]
+          supervisor_comment?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deliverable_path?: string | null
+          description?: string
+          due_date?: string | null
+          id?: string
+          position?: number
+          progress?: number
+          project_id?: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["milestone_status"]
+          supervisor_comment?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestones_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          department: string | null
+          email: string | null
+          full_name: string
+          id: string
+          reg_number: string | null
+        }
+        Insert: {
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          full_name?: string
+          id: string
+          reg_number?: string | null
+        }
+        Update: {
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          reg_number?: string | null
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          category: string
+          created_at: string
+          document_path: string | null
+          expected_outcomes: string
+          id: string
+          objectives: string
+          problem_statement: string
+          proposed_solution: string
+          reviewed_at: string | null
+          scope: string
+          status: Database["public"]["Enums"]["proposal_status"]
+          student_id: string
+          supervisor_id: string | null
+          technologies: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          document_path?: string | null
+          expected_outcomes?: string
+          id?: string
+          objectives?: string
+          problem_statement?: string
+          proposed_solution?: string
+          reviewed_at?: string | null
+          scope?: string
+          status?: Database["public"]["Enums"]["proposal_status"]
+          student_id: string
+          supervisor_id?: string | null
+          technologies?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          document_path?: string | null
+          expected_outcomes?: string
+          id?: string
+          objectives?: string
+          problem_statement?: string
+          proposed_solution?: string
+          reviewed_at?: string | null
+          scope?: string
+          status?: Database["public"]["Enums"]["proposal_status"]
+          student_id?: string
+          supervisor_id?: string | null
+          technologies?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_supervisor_id_fkey"
+            columns: ["supervisor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_access_project: { Args: { _project_id: string }; Returns: boolean }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      list_supervisors: {
+        Args: never
+        Returns: {
+          department: string
+          full_name: string
+          id: string
+        }[]
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "supervisor" | "student"
+      milestone_status: "pending" | "in_progress" | "completed"
+      proposal_status:
+        | "draft"
+        | "submitted"
+        | "under_review"
+        | "approved"
+        | "revision_required"
+        | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +429,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "supervisor", "student"],
+      milestone_status: ["pending", "in_progress", "completed"],
+      proposal_status: [
+        "draft",
+        "submitted",
+        "under_review",
+        "approved",
+        "revision_required",
+        "rejected",
+      ],
+    },
   },
 } as const
