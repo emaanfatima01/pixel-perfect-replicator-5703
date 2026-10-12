@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
 import { CATEGORIES, type Project } from "@/lib/fyp";
-import { proposalSchema, attachmentTooLarge } from "@/lib/proposal-schema";
+import { proposalSchema, attachmentTooLarge, type ProposalInput } from "@/lib/proposal-schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/proposals/new")({
 
 const schema = proposalSchema;
 
-const fields: { key: keyof z.infer<typeof schema>; label: string; long?: boolean }[] = [
+const fields: { key: keyof ProposalInput; label: string; long?: boolean }[] = [
   { key: "title", label: "Project title" },
   { key: "problem_statement", label: "Problem statement", long: true },
   { key: "objectives", label: "Project objectives", long: true },
