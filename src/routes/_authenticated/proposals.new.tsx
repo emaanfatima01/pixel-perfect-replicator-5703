@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
@@ -69,7 +68,7 @@ function ProposalForm() {
       toast.error("Please fix the highlighted fields");
       return;
     }
-    if (file && file.size > 20 * 1024 * 1024) return void toast.error("Attachment must be under 20 MB");
+    if (attachmentTooLarge(file)) return void toast.error("Attachment must be under 20 MB");
     setErrors({});
     setBusy(true);
     try {
