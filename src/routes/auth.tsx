@@ -40,7 +40,7 @@ function AuthPage() {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const fd = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>;
+    const fd = Object.fromEntries(new FormData(e.currentTarget)) as { email?: string; password?: string } & Record<string, string>;
     setErrors({});
     setBusy(true);
     try {

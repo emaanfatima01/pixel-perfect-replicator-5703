@@ -41,7 +41,7 @@ function Dashboard() {
         </div>
         {me.role === "student" && (
           <Button asChild>
-            <Link to="/proposals/new"><FilePlus2 className="mr-1 h-4 w-4" /> Submit proposal</Link>
+            <Link to="/proposals/new" search={{ id: undefined }}><FilePlus2 className="mr-1 h-4 w-4" /> Submit proposal</Link>
           </Button>
         )}
       </div>
@@ -117,7 +117,7 @@ function StudentView({ projects, milestones, byProject }: { projects: P; milesto
       <div className="rounded-2xl border border-dashed bg-card p-10 text-center">
         <h2 className="text-2xl font-semibold">No project yet</h2>
         <p className="mt-2 text-muted-foreground">Start by submitting your project proposal to a supervisor.</p>
-        <Button asChild className="mt-6"><Link to="/proposals/new">Write a proposal</Link></Button>
+        <Button asChild className="mt-6"><Link to="/proposals/new" search={{ id: undefined }}>Write a proposal</Link></Button>
       </div>
     );
   }
