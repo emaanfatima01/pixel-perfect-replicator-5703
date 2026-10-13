@@ -63,7 +63,7 @@ function AuthPage() {
     const fd = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>;
     setErrors({});
     setUnconfirmed(null);
-    const email = (fd.email ?? "").trim();
+    const email = (fd["email"] ?? "").trim();
     if (!z.string().email().safeParse(email).success) return void setErrors({ email: email ? "Enter a valid email" : "Email is required" });
     setBusy(true);
     try {
@@ -72,8 +72,8 @@ function AuthPage() {
         if (error) return void toast.error(friendly(error.message));
         setSent("We sent a password reset link. Open it to choose a new password.");
       } else if (mode === "signin") {
-        if (!fd.password) return void setErrors({ password: "Password is required" });
-        const { error } = await supabase.auth.signInWithPassword({ email, password: fd.password });
+        if (!fd["password"]) return void setErrors({ password: "Password is required" });
+        const { error } = await supabase.auth.signInWithPassword({ email, password: fd["password"] });
         if (error) {
           if (error.message.toLowerCase().includes("not confirmed")) setUnconfirmed(email);
           return void toast.error(friendly(error.message));
