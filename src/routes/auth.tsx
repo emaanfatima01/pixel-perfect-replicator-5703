@@ -16,6 +16,8 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Sign in or create a student or supervisor account on FYPMS." },
       { property: "og:title", content: "Sign in — FYPMS" },
       { property: "og:description", content: "Access your final year project workspace." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AuthPage,
@@ -30,44 +32,72 @@ const signUpSchema = z.object({
   reg_number: z.string().trim().max(40).optional(),
 });
 
+function friendly(msg: string) {
+  const m = msg.toLowerCase();
+  if (m.includes("invalid login")) return "Incorrect email or password.";
+  if (m.includes("not confirmed")) return "Your email isn't confirmed yet. Check your inbox or resend the link below.";
+  if (m.includes("already registered")) return "An account with this email already exists. Try signing in.";
+  if (m.includes("rate limit")) return "Too many attempts. Please wait a minute and try again.";
+  return msg;
+}
+
+type Mode = "signin" | "signup" | "forgot";
+
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<Mode>("signin");
   const [role, setRole] = useState<"student" | "supervisor">("student");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [sent, setSent] = useState<string | null>(null);
+  const [unconfirmed, setUnconfirmed] = useState<string | null>(null);
+
+  async function resend(email: string) {
+    const { error } = await supabase.auth.resend({ type: "signup", email, options: { emailRedirectTo: window.location.origin + "/dashboard" } });
+    if (error) toast.error(friendly(error.message));
+    else toast.success("Confirmation email sent again.");
+  }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const fd = Object.fromEntries(new FormData(e.currentTarget)) as { email?: string; password?: string } & Record<string, string>;
+    const fd = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>;
     setErrors({});
+    setUnconfirmed(null);
+    const email = (fd.email ?? "").trim();
+    if (!z.string().email().safeParse(email).success) return void setErrors({ email: email ? "Enter a valid email" : "Email is required" });
     setBusy(true);
     try {
-      if (mode === "signin") {
-        if (!fd.email || !fd.password) {
-          setErrors({ email: !fd.email ? "Email is required" : "", password: !fd.password ? "Password is required" : "" });
-          return;
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+        if (error) return void toast.error(friendly(error.message));
+        setSent("We sent a password reset link. Open it to choose a new password.");
+      } else if (mode === "signin") {
+        if (!fd.password) return void setErrors({ password: "Password is required" });
+        const { error } = await supabase.auth.signInWithPassword({ email, password: fd.password });
+        if (error) {
+          if (error.message.toLowerCase().includes("not confirmed")) setUnconfirmed(email);
+          return void toast.error(friendly(error.message));
         }
-        const { error } = await supabase.auth.signInWithPassword({ email: fd.email, password: fd.password });
-        if (error) return void toast.error(error.message);
+        toast.success("Signed in successfully");
         navigate({ to: "/dashboard" });
       } else {
-        const parsed = signUpSchema.safeParse({ ...fd, role });
+        const parsed = signUpSchema.safeParse({ ...fd, email, role });
         if (!parsed.success) {
           const errs: Record<string, string> = {};
           parsed.error.issues.forEach((i) => (errs[String(i.path[0])] = i.message));
           return void setErrors(errs);
         }
-        const { email, password, ...meta } = parsed.data;
+        const { password, ...meta } = parsed.data;
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: window.location.origin + "/dashboard", data: meta },
         });
-        if (error) return void toast.error(error.message);
-        if (data.session) navigate({ to: "/dashboard" });
-        else setSent(true);
+        if (error) return void toast.error(friendly(error.message));
+        if (data.session) {
+          toast.success("Account created");
+          navigate({ to: "/dashboard" });
+        } else setSent("We sent a confirmation link. Click it to activate your account, then sign in.");
       }
     } finally {
       setBusy(false);
@@ -75,6 +105,7 @@ function AuthPage() {
   }
 
   const err = (k: string) => errors[k] && <p className="text-xs text-destructive">{errors[k]}</p>;
+  const switchTo = (m: Mode) => { setErrors({}); setUnconfirmed(null); setMode(m); };
 
   return (
     <div className="grid min-h-screen md:grid-cols-2">
@@ -86,17 +117,22 @@ function AuthPage() {
       </div>
       <div className="flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
+          <Link to="/" className="mb-8 flex items-center gap-2 font-display text-lg font-semibold md:hidden">
+            <GraduationCap className="h-5 w-5 text-primary" /> FYPMS
+          </Link>
           {sent ? (
             <div className="text-center">
               <h1 className="text-3xl font-semibold">Check your email</h1>
-              <p className="mt-3 text-sm text-muted-foreground">We sent a confirmation link. Click it to activate your account.</p>
-              <Button variant="outline" className="mt-6" onClick={() => { setSent(false); setMode("signin"); }}>Back to sign in</Button>
+              <p className="mt-3 text-sm text-muted-foreground">{sent}</p>
+              <Button variant="outline" className="mt-6" onClick={() => { setSent(null); switchTo("signin"); }}>Back to sign in</Button>
             </div>
           ) : (
             <>
-              <h1 className="text-3xl font-semibold">{mode === "signin" ? "Welcome back" : "Create account"}</h1>
+              <h1 className="text-3xl font-semibold">
+                {mode === "signin" ? "Welcome back" : mode === "signup" ? "Create account" : "Reset password"}
+              </h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                {mode === "signin" ? "Sign in to your project workspace." : "Join as a student or supervisor."}
+                {mode === "signin" ? "Sign in to your project workspace." : mode === "signup" ? "Join as a student or supervisor." : "Enter your email and we'll send you a reset link."}
               </p>
               <form onSubmit={onSubmit} className="mt-8 space-y-4" noValidate>
                 {mode === "signup" && (
@@ -131,18 +167,33 @@ function AuthPage() {
                   <Input id="email" name="email" type="email" autoComplete="email" />
                   {err("email")}
                 </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="password">Password</Label>
-                  <Input id="password" name="password" type="password" autoComplete={mode === "signin" ? "current-password" : "new-password"} />
-                  {err("password")}
-                </div>
+                {mode !== "forgot" && (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password">Password</Label>
+                      {mode === "signin" && (
+                        <button type="button" className="text-xs font-semibold text-primary hover:underline" onClick={() => switchTo("forgot")}>
+                          Forgot password?
+                        </button>
+                      )}
+                    </div>
+                    <Input id="password" name="password" type="password" autoComplete={mode === "signin" ? "current-password" : "new-password"} />
+                    {err("password")}
+                  </div>
+                )}
                 <Button type="submit" className="w-full" disabled={busy}>
-                  {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+                  {busy ? "Please wait…" : mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Send reset link"}
                 </Button>
+                {unconfirmed && (
+                  <div className="rounded-lg border bg-muted/50 p-3 text-xs">
+                    Didn't get the confirmation email?{" "}
+                    <button type="button" className="font-semibold text-primary hover:underline" onClick={() => resend(unconfirmed)}>Resend it</button>
+                  </div>
+                )}
               </form>
               <p className="mt-6 text-center text-sm text-muted-foreground">
                 {mode === "signin" ? "New here?" : "Already have an account?"}{" "}
-                <button className="font-semibold text-primary hover:underline" onClick={() => { setErrors({}); setMode(mode === "signin" ? "signup" : "signin"); }}>
+                <button className="font-semibold text-primary hover:underline" onClick={() => switchTo(mode === "signin" ? "signup" : "signin")}>
                   {mode === "signin" ? "Create an account" : "Sign in"}
                 </button>
               </p>

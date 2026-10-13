@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/admin")({
-  head: () => ({ meta: [{ title: "Administration — FYPMS" }, { name: "description", content: "Manage users, projects and announcements." }] }),
+  head: () => ({ meta: [{ title: "Coordinator — FYPMS" }, { name: "description", content: "Coordinator tools: users, supervisors, presentations and announcements." }] }),
   component: AdminPage,
 });
 
@@ -38,7 +38,7 @@ function AdminPage() {
   const [ann, setAnn] = useState({ title: "", body: "" });
   const [q, setQ] = useState("");
 
-  if (me && me.role !== "admin") return <Empty text="Administrators only." />;
+  if (me && me.role !== "admin") return <Empty text="Coordinators only." />;
 
   async function setRole(userId: string, role: Role) {
     if (userId === me!.id) return void toast.error("You can't change your own role");
@@ -75,7 +75,7 @@ function AdminPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-4xl font-semibold">Administration</h1>
+      <h1 className="text-4xl font-semibold">Coordinator dashboard</h1>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <StatCard label="Students" value={users.filter((u) => u.role === "student").length} />
         <StatCard label="Supervisors" value={supervisors.length} />
@@ -103,7 +103,7 @@ function AdminPage() {
                       <SelectContent>
                         <SelectItem value="student">Student</SelectItem>
                         <SelectItem value="supervisor">Supervisor</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="admin">Coordinator</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -125,6 +125,16 @@ function AdminPage() {
                   <SelectContent>{supervisors.map((s) => <SelectItem key={s.id} value={s.id}>{s.full_name}</SelectItem>)}</SelectContent>
                 </Select>
               </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
+
+      <Panel title="Final presentations & completion">
+        {projects.filter((p) => p.status === "approved").length === 0 ? <Empty text="No approved projects yet." /> : (
+          <ul className="divide-y">
+            {projects.filter((p) => p.status === "approved").map((p) => (
+              <PresentationRow key={p.id} p={p} onSaved={() => qc.invalidateQueries({ queryKey: ["projects"] })} />
             ))}
           </ul>
         )}

@@ -184,11 +184,14 @@ export type Database = {
       projects: {
         Row: {
           category: string
+          completed_at: string | null
           created_at: string
           document_path: string | null
           expected_outcomes: string
           id: string
           objectives: string
+          presentation_at: string | null
+          presentation_venue: string | null
           problem_statement: string
           proposed_solution: string
           reviewed_at: string | null
@@ -202,11 +205,14 @@ export type Database = {
         }
         Insert: {
           category?: string
+          completed_at?: string | null
           created_at?: string
           document_path?: string | null
           expected_outcomes?: string
           id?: string
           objectives?: string
+          presentation_at?: string | null
+          presentation_venue?: string | null
           problem_statement?: string
           proposed_solution?: string
           reviewed_at?: string | null
@@ -220,11 +226,14 @@ export type Database = {
         }
         Update: {
           category?: string
+          completed_at?: string | null
           created_at?: string
           document_path?: string | null
           expected_outcomes?: string
           id?: string
           objectives?: string
+          presentation_at?: string | null
+          presentation_venue?: string | null
           problem_statement?: string
           proposed_solution?: string
           reviewed_at?: string | null

@@ -24,7 +24,7 @@ function ProjectsPage() {
   const [status, setStatus] = useState<string>("all");
 
   const list = projects.filter((p) => {
-    const t = `${p.title} ${p.student?.full_name ?? ""} ${p.student?.reg_number ?? ""} ${p.category}`.toLowerCase();
+    const t = `${p.title} ${p.student?.full_name ?? ""} ${p.supervisor?.full_name ?? ""} ${p.student?.reg_number ?? ""} ${p.category}`.toLowerCase();
     return t.includes(q.toLowerCase()) && (status === "all" || p.status === status);
   });
 
@@ -34,7 +34,7 @@ function ProjectsPage() {
       <div className="flex flex-wrap gap-3">
         <div className="relative min-w-60 flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search by title, student, reg. number or category" value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="pl-9" placeholder="Search by title, student, supervisor or reg. number" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <Select value={status} onValueChange={setStatus}>
           <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
@@ -55,7 +55,7 @@ function ProjectsPage() {
                     <div className="min-w-0">
                       <p className="truncate font-semibold">{p.title}</p>
                       <p className="text-xs text-muted-foreground">
-                        {p.student?.full_name}{p.student?.reg_number ? ` (${p.student.reg_number})` : ""} · {p.category} · updated {fmtDate(p.updated_at)}
+                        {p.student?.full_name}{p.student?.reg_number ? ` (${p.student.reg_number})` : ""} · {p.supervisor?.full_name ? `Supervisor: ${p.supervisor.full_name} · ` : ""}{p.category} · updated {fmtDate(p.updated_at)}{p.presentation_at ? ` · Presentation ${fmtDate(p.presentation_at)}` : ""}{p.completed_at ? " · Completed" : ""}
                       </p>
                     </div>
                     <StatusBadge status={p.status} />

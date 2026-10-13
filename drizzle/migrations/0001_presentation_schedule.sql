@@ -1,0 +1,1 @@
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS presentation_at timestamptz, ADD COLUMN IF NOT EXISTS presentation_venue text, ADD COLUMN IF NOT EXISTS completed_at timestamptz;

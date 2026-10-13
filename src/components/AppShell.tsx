@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, show: true },
     { to: "/projects", label: me?.role === "student" ? "My projects" : "Projects", icon: FolderKanban, show: true },
     { to: "/proposals/new", label: "New proposal", icon: FilePlus2, show: me?.role === "student" },
-    { to: "/admin", label: "Administration", icon: Shield, show: me?.role === "admin" },
+    { to: "/admin", label: "Coordinator", icon: Shield, show: me?.role === "admin" },
     { to: "/profile", label: "Profile", icon: UserCircle, show: true },
   ] as const;
 
