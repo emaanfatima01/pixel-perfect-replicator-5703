@@ -130,6 +130,16 @@ function AdminPage() {
         )}
       </Panel>
 
+      <Panel title="Final presentations & completion">
+        {projects.filter((p) => p.status === "approved").length === 0 ? <Empty text="No approved projects yet." /> : (
+          <ul className="divide-y">
+            {projects.filter((p) => p.status === "approved").map((p) => (
+              <PresentationRow key={p.id} p={p} onSaved={() => qc.invalidateQueries({ queryKey: ["projects"] })} />
+            ))}
+          </ul>
+        )}
+      </Panel>
+
       <Panel title="Announcements">
         <div className="space-y-3">
           <Input placeholder="Title" value={ann.title} onChange={(e) => setAnn({ ...ann, title: e.target.value })} />
