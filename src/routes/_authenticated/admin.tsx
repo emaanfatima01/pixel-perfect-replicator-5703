@@ -158,3 +158,50 @@ function AdminPage() {
     </div>
   );
 }
+
+type PresentationProject = { id: string; title: string; student?: { full_name?: string | null } | null; presentation_at?: string | null; presentation_venue?: string | null; completed_at?: string | null };
+
+function toLocalInput(iso?: string | null) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const off = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - off).toISOString().slice(0, 16);
+}
+
+function PresentationRow({ p, onSaved }: { p: PresentationProject; onSaved: () => void }) {
+  const [when, setWhen] = useState(toLocalInput(p.presentation_at));
+  const [venue, setVenue] = useState(p.presentation_venue ?? "");
+  const [busy, setBusy] = useState(false);
+  const save = async (completed?: boolean) => {
+    setBusy(true);
+    const patch: { presentation_at: string | null; presentation_venue: string | null; completed_at?: string | null } = {
+      presentation_at: when ? new Date(when).toISOString() : null,
+      presentation_venue: venue.trim() || null,
+    };
+    if (completed !== undefined) patch.completed_at = completed ? new Date().toISOString() : null;
+    const { error } = await supabase.from("projects").update(patch).eq("id", p.id);
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Saved");
+    onSaved();
+  };
+  return (
+    <li className="flex flex-wrap items-end justify-between gap-3 py-3">
+      <div className="min-w-48">
+        <p className="font-medium">{p.title}</p>
+        <p className="text-xs text-muted-foreground">
+          {p.student?.full_name}
+          {p.completed_at ? ` · Completed ${fmtDate(p.completed_at)}` : ""}
+        </p>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Input type="datetime-local" className="w-52" value={when} onChange={(e) => setWhen(e.target.value)} />
+        <Input placeholder="Venue" className="w-40" value={venue} onChange={(e) => setVenue(e.target.value)} />
+        <Button size="sm" disabled={busy} onClick={() => save()}>Save</Button>
+        <Button size="sm" variant="outline" disabled={busy} onClick={() => save(!p.completed_at)}>
+          {p.completed_at ? "Mark not completed" : "Mark completed"}
+        </Button>
+      </div>
+    </li>
+  );
+}
