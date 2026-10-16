@@ -181,7 +181,7 @@ function PresentationRow({ p, onSaved }: { p: PresentationProject; onSaved: () =
     if (completed !== undefined) patch.completed_at = completed ? new Date().toISOString() : null;
     const { error } = await supabase.from("projects").update(patch).eq("id", p.id);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Saved");
     onSaved();
   };
