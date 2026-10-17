@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { GraduationCap, Home } from "lucide-react";
 import authSide from "@/assets/auth-side.jpg";
 import { supabase } from "@/integrations/supabase/client";
+import { friendly } from "@/lib/auth-errors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,13 +34,9 @@ const signUpSchema = z.object({
   reg_number: z.string().trim().max(40).optional(),
 });
 
-function friendly(msg: string) {
-  const m = msg.toLowerCase();
-  if (m.includes("invalid login")) return "Incorrect email or password.";
-  if (m.includes("not confirmed")) return "Your email isn't confirmed yet. Check your inbox or resend the link below.";
-  if (m.includes("already registered")) return "An account with this email already exists. Try signing in.";
-  if (m.includes("rate limit")) return "Too many attempts. Please wait a minute and try again.";
-  return msg;
+async function homeFor(userId: string): Promise<"/admin" | "/dashboard"> {
+  const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+  return (data ?? []).some((r) => r.role === "admin") ? "/admin" : "/dashboard";
 }
 
 type Mode = "signin" | "signup" | "forgot";
@@ -64,23 +61,25 @@ function AuthPage() {
     const fd = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>;
     setErrors({});
     setUnconfirmed(null);
-    const email = (fd["email"] ?? "").trim();
+    const email = (fd["email"] ?? "").trim().toLowerCase();
     if (!z.string().email().safeParse(email).success) return void setErrors({ email: email ? "Enter a valid email" : "Email is required" });
     setBusy(true);
     try {
       if (mode === "forgot") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
         if (error) return void toast.error(friendly(error.message));
-        setSent("We sent a password reset link. Open it to choose a new password.");
+        setSent("If an account exists for this email, we sent a password reset link. Open it to choose a new password.");
       } else if (mode === "signin") {
         if (!fd["password"]) return void setErrors({ password: "Password is required" });
-        const { error } = await supabase.auth.signInWithPassword({ email, password: fd["password"] });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password: fd["password"] });
         if (error) {
           if (error.message.toLowerCase().includes("not confirmed")) setUnconfirmed(email);
-          return void toast.error(friendly(error.message));
+          const msg = friendly(error.message);
+          if (error.message.toLowerCase().includes("invalid login")) setErrors({ password: msg });
+          return void toast.error(msg);
         }
         toast.success("Signed in successfully");
-        navigate({ to: "/dashboard" });
+        navigate({ to: await homeFor(data.user.id) });
       } else {
         const parsed = signUpSchema.safeParse({ ...fd, email, role });
         if (!parsed.success) {
@@ -94,11 +93,23 @@ function AuthPage() {
           password,
           options: { emailRedirectTo: window.location.origin + "/dashboard", data: meta },
         });
-        if (error) return void toast.error(friendly(error.message));
+        if (error) {
+          const msg = friendly(error.message);
+          setErrors(error.message.toLowerCase().includes("weak") ? { password: msg } : { email: msg });
+          return void toast.error(msg);
+        }
+        // An already-registered email returns a placeholder user with no identities:
+        // nothing was created and the password was NOT changed.
+        if (data.user && (data.user.identities ?? []).length === 0) {
+          const msg = "An account with this email already exists. Sign in with your original password, or use \"Forgot password?\" to set a new one.";
+          toast.error(msg);
+          setMode("signin");
+          return void setErrors({ email: msg });
+        }
         if (data.session) {
           toast.success("Account created");
-          navigate({ to: "/dashboard" });
-        } else setSent("We sent a confirmation link. Click it to activate your account, then sign in.");
+          navigate({ to: await homeFor(data.session.user.id) });
+        } else setSent("Account created! We sent a confirmation link to your email. Click it to activate your account, then sign in.");
       }
     } finally {
       setBusy(false);
