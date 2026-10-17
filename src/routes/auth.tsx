@@ -2,7 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, Home } from "lucide-react";
+import authSide from "@/assets/auth-side.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -109,13 +110,23 @@ function AuthPage() {
 
   return (
     <div className="grid min-h-screen md:grid-cols-2">
-      <div className="hidden bg-hero p-12 text-ink-foreground md:flex md:flex-col md:justify-between">
-        <Link to="/" className="flex items-center gap-2 font-display text-xl font-semibold">
-          <GraduationCap className="h-6 w-6 text-accent" /> FYPMS
-        </Link>
-        <p className="font-display text-4xl leading-tight">“A good project is a well-planned project.”</p>
+      <div className="relative hidden overflow-hidden text-ink-foreground md:block">
+        <img src={authSide} alt="Students working on a final year project" width={1024} height={1536} className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/20" />
+        <div className="relative flex h-full flex-col justify-between p-12">
+          <Link to="/" className="flex items-center gap-2 font-display text-xl font-semibold">
+            <GraduationCap className="h-6 w-6 text-accent" /> FYPMS
+          </Link>
+          <div>
+            <p className="font-display text-4xl leading-tight">“A good project is a well-planned project.”</p>
+            <p className="mt-3 text-sm text-ink-foreground/80">Proposals, milestones and feedback — all in one place.</p>
+          </div>
+        </div>
       </div>
-      <div className="flex items-center justify-center p-6">
+      <div className="relative flex items-center justify-center p-6">
+        <Link to="/" aria-label="Back to home" className="absolute right-6 top-6 inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-sm font-medium shadow-soft hover:bg-muted">
+          <Home className="h-4 w-4" /> Home
+        </Link>
         <div className="w-full max-w-sm">
           <Link to="/" className="mb-8 flex items-center gap-2 font-display text-lg font-semibold md:hidden">
             <GraduationCap className="h-5 w-5 text-primary" /> FYPMS

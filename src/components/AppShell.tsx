@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, FolderKanban, FilePlus2, UserCircle, Shield, LogOut, GraduationCap, Menu } from "lucide-react";
+import { LayoutDashboard, FolderKanban, FilePlus2, UserCircle, Shield, LogOut, GraduationCap, Menu, Home } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
@@ -20,6 +20,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   const items = [
+    { to: "/", label: "Home", icon: Home, show: true },
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, show: true },
     { to: "/projects", label: me?.role === "student" ? "My projects" : "Projects", icon: FolderKanban, show: true },
     { to: "/proposals/new", label: "New proposal", icon: FilePlus2, show: me?.role === "student" },
