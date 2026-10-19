@@ -1,8 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  GraduationCap, FileCheck2, KanbanSquare, MessageSquareText, ArrowRight, Bell, Upload, Search,
-  CalendarClock, UserCheck, ClipboardList, Users, Presentation, CheckCircle2, LineChart, Clock, Megaphone,
-} from "lucide-react";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import hero from "@/assets/hero.jpg";
