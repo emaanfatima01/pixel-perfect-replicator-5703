@@ -98,6 +98,7 @@
   --sidebar-border: oklch(0.32 0.04 165);
   --sidebar-ring: oklch(0.8 0.14 75);
   --shadow-soft: 0 1px 2px oklch(0.22 0.04 165 / 0.06), 0 8px 24px -12px oklch(0.22 0.04 165 / 0.18);
+  --shadow-lift: 0 2px 4px oklch(0.22 0.04 165 / 0.06), 0 18px 40px -16px oklch(0.22 0.04 165 / 0.28);
   --gradient-hero: radial-gradient(ellipse at 80% 0%, oklch(0.8 0.14 75 / 0.35), transparent 55%),
     linear-gradient(160deg, oklch(0.25 0.05 165), oklch(0.18 0.035 175));
 }
@@ -122,4 +123,63 @@
 }
 @utility bg-hero {
   background: var(--gradient-hero);
+}
+
+/* Professional hover lift for cards: rise + gentle scale + deeper shadow */
+@utility card-lift {
+  transition: transform 280ms cubic-bezier(0.22, 0.8, 0.3, 1), box-shadow 280ms cubic-bezier(0.22, 0.8, 0.3, 1);
+  will-change: transform;
+  &:hover {
+    transform: translateY(-4px) scale(1.015);
+    box-shadow: var(--shadow-lift);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 3px;
+    transform: translateY(-4px) scale(1.015);
+    box-shadow: var(--shadow-lift);
+  }
+}
+
+/* Subtle transition for status badges: tiny rise + brightness, meaning unchanged */
+@utility badge-transition {
+  transition: transform 250ms ease, filter 250ms ease, box-shadow 250ms ease;
+  &:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+    box-shadow: var(--shadow-soft);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Smooth lift for primary action buttons */
+@utility btn-lift {
+  transition: transform 280ms cubic-bezier(0.22, 0.8, 0.3, 1), box-shadow 280ms cubic-bezier(0.22, 0.8, 0.3, 1), background-color 280ms ease, color 280ms ease, border-color 280ms ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
+  }
+  &:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-soft);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-lift,
+  .badge-transition,
+  .btn-lift {
+    transition: none;
+    will-change: auto;
+  }
+  .card-lift:hover,
+  .card-lift:focus-visible,
+  .badge-transition:hover,
+  .btn-lift:hover {
+    transform: none;
+    filter: none;
+  }
 }
