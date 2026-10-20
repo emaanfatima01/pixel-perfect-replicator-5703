@@ -107,7 +107,7 @@ function ProposalForm() {
     <div className="mx-auto max-w-3xl">
       <h1 className="text-4xl font-semibold">{id ? "Revise proposal" : "New project proposal"}</h1>
       <p className="mt-2 text-muted-foreground">Fill in every section. You can save a draft and submit later.</p>
-      <div className="mt-8 space-y-5 rounded-2xl border bg-card p-6 shadow-soft md:p-8">
+      <div className="card-lift mt-8 space-y-5 rounded-2xl border bg-card p-6 shadow-soft md:p-8">
         {fields.map((f) => (
           <div key={f.key} className="space-y-1.5">
             <Label htmlFor={f.key}>{f.label}</Label>
@@ -144,8 +144,8 @@ function ProposalForm() {
           {existing?.document_path && !file && <p className="text-xs text-muted-foreground">A document is already attached.</p>}
         </div>
         <div className="flex flex-wrap justify-end gap-3 pt-2">
-          <Button variant="outline" disabled={busy} onClick={() => save(false)}>Save draft</Button>
-          <Button disabled={busy} onClick={() => save(true)}>{busy ? "Saving…" : "Submit for review"}</Button>
+          <Button variant="outline" className="btn-lift" disabled={busy} onClick={() => save(false)}>Save draft</Button>
+          <Button className="btn-lift" disabled={busy} onClick={() => save(true)}>{busy ? "Saving…" : "Submit for review"}</Button>
         </div>
       </div>
     </div>

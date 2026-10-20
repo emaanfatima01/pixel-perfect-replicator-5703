@@ -11,7 +11,7 @@ const tone = {
 
 export function StatusBadge({ status }: { status: ProposalStatus }) {
   return (
-    <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold", tone[PROPOSAL_TONE[status]])}>
+    <span className={cn("badge-transition inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold", tone[PROPOSAL_TONE[status]])}>
       {PROPOSAL_LABEL[status]}
     </span>
   );
@@ -32,7 +32,7 @@ const mLabel: Record<MilestoneView, string> = {
 
 export function MilestoneBadge({ view }: { view: MilestoneView }) {
   return (
-    <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold", tone[mTone[view]])}>
+    <span className={cn("badge-transition inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold", tone[mTone[view]])}>
       {mLabel[view]}
     </span>
   );
