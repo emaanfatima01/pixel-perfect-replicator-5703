@@ -1,9 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { Sparkles, Lightbulb, CircleCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
+import { reviewProposal, type ProposalReview } from "@/lib/proposal-review.functions";
 import { CATEGORIES, type Project } from "@/lib/fyp";
 import { proposalSchema, attachmentTooLarge, type ProposalInput } from "@/lib/proposal-schema";
 import { Button } from "@/components/ui/button";
@@ -39,6 +42,31 @@ function ProposalForm() {
   const [file, setFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  const [review, setReview] = useState<ProposalReview | null>(null);
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const reviewFn = useServerFn(reviewProposal);
+
+  async function reviewWithAi() {
+    const parsed = schema.safeParse(values);
+    if (!parsed.success) {
+      const errs: Record<string, string> = {};
+      parsed.error.issues.forEach((i) => (errs[String(i.path[0])] = i.message));
+      setErrors(errs);
+      toast.error("Fill in every section first, then the AI can review it");
+      return;
+    }
+    setErrors({});
+    setReviewBusy(true);
+    try {
+      const res = await reviewFn({ data: parsed.data });
+      if (res.error || !res.review) toast.error(res.error ?? "Could not review the proposal");
+      else setReview(res.review);
+    } catch {
+      toast.error("The AI reviewer is unavailable right now. Please try again in a moment.");
+    } finally {
+      setReviewBusy(false);
+    }
+  }
 
   const { data: supervisors = [] } = useQuery({
     queryKey: ["supervisors"],
