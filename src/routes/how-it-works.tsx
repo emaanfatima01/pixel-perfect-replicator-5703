@@ -24,7 +24,7 @@ function HowItWorks() {
       <section className="mx-auto max-w-4xl px-6 py-16">
         <ol className="space-y-4">
           {steps.map((s, i) => (
-            <li key={s.title} className="flex gap-5 rounded-2xl border bg-card p-6 shadow-soft">
+            <li key={s.title} className="card-lift flex gap-5 rounded-2xl border bg-card p-6 shadow-soft">
               <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary/10"><s.icon className="h-6 w-6 text-primary" /></span>
               <div>
                 <span className="text-xs font-bold text-primary">STEP {i + 1}</span>
@@ -40,10 +40,10 @@ function HowItWorks() {
           <h2 className="text-center text-3xl font-semibold">Proposal statuses</h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {statuses.map((s) => (
-              <div key={s.name} className="rounded-xl border bg-card p-4">
-                <p className="font-semibold">{s.name}</p>
-                <p className="text-sm text-muted-foreground">{s.text}</p>
-              </div>
+                <div key={s.name} className="card-lift rounded-xl border bg-card p-4">
+                  <p className="font-semibold">{s.name}</p>
+                  <p className="text-sm text-muted-foreground">{s.text}</p>
+                </div>
             ))}
           </div>
           <div className="mt-10 text-center">

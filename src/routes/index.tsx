@@ -66,7 +66,7 @@ function Index() {
           <h2 className="text-center text-3xl font-semibold md:text-4xl">How it works</h2>
           <ol className="mt-12 grid gap-4 md:grid-cols-5">
             {steps.map((s, i) => (
-              <li key={s.title} className="relative rounded-2xl border bg-card p-5 shadow-soft">
+              <li key={s.title} className="card-lift relative rounded-2xl border bg-card p-5 shadow-soft">
                 <span className="text-xs font-bold text-primary">STEP {i + 1}</span>
                 <s.icon className="mt-3 h-6 w-6 text-primary" />
                 <h3 className="mt-3 font-semibold">{s.title}</h3>
