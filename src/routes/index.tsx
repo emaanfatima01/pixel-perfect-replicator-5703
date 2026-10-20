@@ -83,7 +83,7 @@ function Index() {
           <h2 className="text-center text-3xl font-semibold md:text-4xl">FYPs / Projects</h2>
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {categories.map((c) => (
-              <div key={c.title} className="rounded-2xl border bg-card p-6 shadow-soft">
+              <div key={c.title} className="card-lift rounded-2xl border bg-card p-6 shadow-soft">
                 <h3 className="text-xl font-semibold">{c.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{c.text}</p>
               </div>
@@ -97,7 +97,7 @@ function Index() {
         <h2 className="text-center text-3xl font-semibold md:text-4xl">Key features</h2>
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f) => (
-            <div key={f.title} className="rounded-2xl border bg-card p-6 shadow-soft">
+            <div key={f.title} className="card-lift rounded-2xl border bg-card p-6 shadow-soft">
               <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10"><f.icon className="h-5 w-5 text-primary" /></span>
               <h3 className="mt-4 text-xl font-semibold">{f.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{f.text}</p>

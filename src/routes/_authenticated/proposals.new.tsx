@@ -1,9 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { Sparkles, Lightbulb, CircleCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/auth";
+import { reviewProposal, type ProposalReview } from "@/lib/proposal-review.functions";
 import { CATEGORIES, type Project } from "@/lib/fyp";
 import { proposalSchema, attachmentTooLarge, type ProposalInput } from "@/lib/proposal-schema";
 import { Button } from "@/components/ui/button";
@@ -39,6 +42,31 @@ function ProposalForm() {
   const [file, setFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  const [review, setReview] = useState<ProposalReview | null>(null);
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const reviewFn = useServerFn(reviewProposal);
+
+  async function reviewWithAi() {
+    const parsed = schema.safeParse(values);
+    if (!parsed.success) {
+      const errs: Record<string, string> = {};
+      parsed.error.issues.forEach((i) => (errs[String(i.path[0])] = i.message));
+      setErrors(errs);
+      toast.error("Fill in every section first, then the AI can review it");
+      return;
+    }
+    setErrors({});
+    setReviewBusy(true);
+    try {
+      const res = await reviewFn({ data: parsed.data });
+      if (res.error || !res.review) toast.error(res.error ?? "Could not review the proposal");
+      else setReview(res.review);
+    } catch {
+      toast.error("The AI reviewer is unavailable right now. Please try again in a moment.");
+    } finally {
+      setReviewBusy(false);
+    }
+  }
 
   const { data: supervisors = [] } = useQuery({
     queryKey: ["supervisors"],
@@ -142,6 +170,45 @@ function ProposalForm() {
           <Label htmlFor="doc">Proposal document (PDF/DOCX, optional)</Label>
           <Input id="doc" type="file" accept=".pdf,.doc,.docx" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
           {existing?.document_path && !file && <p className="text-xs text-muted-foreground">A document is already attached.</p>}
+        </div>
+        <div className="rounded-xl border border-dashed bg-muted/40 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="flex items-center gap-2 font-semibold"><Sparkles className="h-4 w-4 text-primary" />AI proposal check</p>
+              <p className="mt-1 text-sm text-muted-foreground">Get instant feedback on clarity and completeness before you submit.</p>
+            </div>
+            <Button type="button" variant="secondary" className="btn-lift" disabled={busy || reviewBusy} onClick={reviewWithAi}>
+              {reviewBusy ? "Reviewing…" : "Review with AI"}
+            </Button>
+          </div>
+          {review && (
+            <div className="mt-4 space-y-4 border-t pt-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {([["Clarity", review.clarity_score], ["Completeness", review.completeness_score]] as const).map(([label, score]) => (
+                  <div key={label}>
+                    <div className="flex justify-between text-sm"><span className="font-medium">{label}</span><span className="font-semibold">{score}/10</span></div>
+                    <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
+                      <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${score * 10}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground">{review.summary}</p>
+              {review.strengths.length > 0 && (
+                <ul className="space-y-1.5 text-sm">
+                  {review.strengths.map((s) => <li key={s} className="flex gap-2"><CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-success" />{s}</li>)}
+                </ul>
+              )}
+              {review.improvements.length > 0 && (
+                <div>
+                  <p className="text-sm font-semibold">Suggested improvements</p>
+                  <ul className="mt-1.5 space-y-1.5 text-sm">
+                    {review.improvements.map((s) => <li key={s} className="flex gap-2"><Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-accent-foreground" />{s}</li>)}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
         </div>
         <div className="flex flex-wrap justify-end gap-3 pt-2">
           <Button variant="outline" className="btn-lift" disabled={busy} onClick={() => save(false)}>Save draft</Button>
