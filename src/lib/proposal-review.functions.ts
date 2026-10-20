@@ -61,7 +61,12 @@ export const reviewProposal = createServerFn({ method: "POST" })
         max_output_tokens: 2000,
       });
 
-      const raw = response.output_text;
+      const raw = response.output
+        .filter((item) => item.type === "message")
+        .flatMap((item) => item.content)
+        .filter((part) => part.type === "output_text")
+        .map((part) => part.text)
+        .join("");
       const parsed = JSON.parse(raw) as ProposalReview;
       return { review: parsed, error: null };
     } catch (e) {
