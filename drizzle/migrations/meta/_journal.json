@@ -15,6 +15,13 @@
       "when": 1791916443936,
       "tag": "0001_presentation_schedule",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794853171085,
+      "tag": "0002_tighten_profile_and_announcement_reads",
+      "breakpoints": true
     }
   ]
 }
