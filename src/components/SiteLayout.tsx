@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
-import { GraduationCap, House, Workflow, FolderKanban, Sparkles, Mail, Menu, X } from "lucide-react";
+import { GraduationCap, House, Workflow, FolderKanban, Sparkles, Mail, Menu, UserRound, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const links = [
   { to: "/", label: "Home", icon: House },
-  { to: "/how-it-works", label: "How it works", icon: Workflow },
+  { to: "/how-it-works", label: "How it Works", icon: Workflow },
   { to: "/fyps", label: "FYPs", icon: FolderKanban },
   { to: "/features", label: "Features", icon: Sparkles },
   { to: "/contact", label: "Contact", icon: Mail },
@@ -15,48 +15,58 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   return (
     <header className="bg-hero text-ink-foreground">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-5">
-        <Link to="/" className="flex items-center gap-2 font-display text-xl font-semibold">
-          <GraduationCap className="h-6 w-6 text-accent" /> FYPMS
-        </Link>
-        <nav className="hidden items-center gap-1 text-sm md:flex">
-          {links.map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              activeOptions={{ exact: true }}
-              className="group relative flex min-h-10 items-center gap-2 px-3 py-2 text-ink-foreground transition-colors duration-200 hover:text-ink-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink after:absolute after:inset-x-3 after:-bottom-1 after:h-0.5 after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-200 after:content-['']"
-              activeProps={{ className: "after:scale-x-100" }}
-            >
-              <l.icon aria-hidden="true" className="h-4 w-4 shrink-0 text-nav-icon transition-transform duration-200 group-hover:-translate-y-0.5" />
-              <span>{l.label}</span>
+      <div className="mx-auto max-w-7xl px-3 py-3 sm:px-6 sm:py-5">
+        <div className={`overflow-hidden border border-accent/30 bg-ink/80 shadow-soft transition-[border-radius] duration-200 ${open ? "rounded-3xl" : "rounded-full"}`}>
+          <div className="flex min-h-16 items-center justify-between gap-3 px-4 sm:px-6">
+            <Link to="/" className="flex shrink-0 items-center gap-2 font-display text-xl font-semibold">
+              <GraduationCap className="h-7 w-7 text-accent" /> FYPMS
             </Link>
-          ))}
-        </nav>
-        <div className="flex items-center gap-2">
-          <Button asChild variant="secondary" size="sm"><Link to="/auth">Sign in</Link></Button>
-          <button className="md:hidden" onClick={() => setOpen((o) => !o)} aria-label="Toggle menu">
-            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+            <nav className="hidden items-center text-sm lg:flex">
+              {links.map((l) => (
+                <Link
+                  key={l.to}
+                  to={l.to}
+                  activeOptions={{ exact: true }}
+                  className="group relative flex min-h-12 items-center gap-2 border-r border-ink-foreground/15 px-3 text-ink-foreground transition-colors duration-200 hover:text-ink-foreground focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset last:border-r-0 xl:gap-2.5 xl:px-4 after:absolute after:inset-x-3 after:-bottom-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-200 after:content-[''] xl:after:inset-x-4"
+                  activeProps={{ className: "after:scale-x-100" }}
+                >
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-nav-icon-well">
+                    <l.icon aria-hidden="true" className="h-4 w-4 text-nav-icon transition-transform duration-200 group-hover:-translate-y-0.5" />
+                  </span>
+                  <span className="whitespace-nowrap">{l.label}</span>
+                </Link>
+              ))}
+            </nav>
+            <div className="flex shrink-0 items-center gap-2">
+              <Button asChild size="sm" className="rounded-full bg-accent px-4 text-accent-foreground transition-colors duration-200 hover:bg-accent/90">
+                <Link to="/auth"><UserRound aria-hidden="true" className="mr-2 h-4 w-4" />Sign in</Link>
+              </Button>
+              <button className="grid h-10 w-10 place-items-center rounded-full text-ink-foreground transition-colors hover:bg-ink-foreground/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:hidden" onClick={() => setOpen((o) => !o)} aria-label="Toggle menu" aria-expanded={open}>
+                {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
+          {open && (
+            <nav className="flex flex-col gap-1 border-t border-ink-foreground/10 px-4 py-3 lg:hidden">
+              {links.map((l) => (
+                <Link
+                  key={l.to}
+                  to={l.to}
+                  onClick={() => setOpen(false)}
+                  activeOptions={{ exact: true }}
+                  className="group relative flex min-h-11 items-center gap-3 px-3 py-2 text-sm text-ink-foreground transition-colors duration-200 hover:bg-ink-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent after:absolute after:inset-y-2 after:left-0 after:w-0.5 after:origin-top after:scale-y-0 after:bg-accent after:transition-transform after:duration-200 after:content-['']"
+                  activeProps={{ className: "after:scale-y-100" }}
+                >
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-nav-icon-well">
+                    <l.icon aria-hidden="true" className="h-4 w-4 text-nav-icon transition-transform duration-200 group-hover:-translate-y-0.5" />
+                  </span>
+                  <span>{l.label}</span>
+                </Link>
+              ))}
+            </nav>
+          )}
         </div>
       </div>
-      {open && (
-        <nav className="flex flex-col gap-1 border-t border-ink-foreground/10 px-6 py-3 md:hidden">
-          {links.map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              onClick={() => setOpen(false)}
-              activeOptions={{ exact: true }}
-              className="group relative flex min-h-11 items-center gap-3 px-3 py-2 text-sm text-ink-foreground transition-colors duration-200 hover:text-ink-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent after:absolute after:inset-y-2 after:left-0 after:w-0.5 after:origin-top after:scale-y-0 after:bg-accent after:transition-transform after:duration-200 after:content-['']"
-              activeProps={{ className: "after:scale-y-100" }}
-            >
-              <l.icon aria-hidden="true" className="h-4 w-4 shrink-0 text-nav-icon transition-transform duration-200 group-hover:-translate-y-0.5" />
-              <span>{l.label}</span>
-            </Link>
-          ))}
-        </nav>
-      )}
     </header>
   );
 }
