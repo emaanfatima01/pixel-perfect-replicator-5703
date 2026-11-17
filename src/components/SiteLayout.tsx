@@ -1,10 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
-import { GraduationCap, Home, Workflow, FolderKanban, Sparkles, Mail, Menu, X } from "lucide-react";
+import { GraduationCap, House, Workflow, FolderKanban, Sparkles, Mail, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const links = [
-  { to: "/", label: "Home", icon: Home },
+  { to: "/", label: "Home", icon: House },
   { to: "/how-it-works", label: "How it works", icon: Workflow },
   { to: "/fyps", label: "FYPs", icon: FolderKanban },
   { to: "/features", label: "Features", icon: Sparkles },
@@ -19,16 +19,17 @@ export function SiteHeader() {
         <Link to="/" className="flex items-center gap-2 font-display text-xl font-semibold">
           <GraduationCap className="h-6 w-6 text-accent" /> FYPMS
         </Link>
-        <nav className="hidden gap-1 text-sm md:flex">
+        <nav className="hidden items-center gap-1 text-sm md:flex">
           {links.map((l) => (
             <Link
               key={l.to}
               to={l.to}
               activeOptions={{ exact: true }}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-ink-foreground/75 transition hover:bg-ink-foreground/10 hover:text-ink-foreground"
-              activeProps={{ className: "bg-ink-foreground/10 !text-accent" }}
+              className="group relative flex min-h-10 items-center gap-2 px-3 py-2 text-ink-foreground transition-colors duration-200 hover:text-ink-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink after:absolute after:inset-x-3 after:-bottom-1 after:h-0.5 after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-200 after:content-['']"
+              activeProps={{ className: "after:scale-x-100" }}
             >
-              <l.icon className="h-4 w-4" /> {l.label}
+              <l.icon aria-hidden="true" className="h-4 w-4 shrink-0 text-nav-icon transition-transform duration-200 group-hover:-translate-y-0.5" />
+              <span>{l.label}</span>
             </Link>
           ))}
         </nav>
@@ -47,10 +48,11 @@ export function SiteHeader() {
               to={l.to}
               onClick={() => setOpen(false)}
               activeOptions={{ exact: true }}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-foreground/80"
-              activeProps={{ className: "bg-ink-foreground/10 !text-accent" }}
+              className="group relative flex min-h-11 items-center gap-3 px-3 py-2 text-sm text-ink-foreground transition-colors duration-200 hover:text-ink-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent after:absolute after:inset-y-2 after:left-0 after:w-0.5 after:origin-top after:scale-y-0 after:bg-accent after:transition-transform after:duration-200 after:content-['']"
+              activeProps={{ className: "after:scale-y-100" }}
             >
-              <l.icon className="h-4 w-4" /> {l.label}
+              <l.icon aria-hidden="true" className="h-4 w-4 shrink-0 text-nav-icon transition-transform duration-200 group-hover:-translate-y-0.5" />
+              <span>{l.label}</span>
             </Link>
           ))}
         </nav>
