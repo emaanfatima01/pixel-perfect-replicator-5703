@@ -11,7 +11,7 @@ const tone = {
 
 export function StatusBadge({ status }: { status: ProposalStatus }) {
   return (
-    <span className={cn("badge-transition inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold", tone[PROPOSAL_TONE[status]])}>
+    <span className={cn("badge-transition inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold", tone[PROPOSAL_TONE[status]])}>
       {PROPOSAL_LABEL[status]}
     </span>
   );
@@ -32,7 +32,7 @@ const mLabel: Record<MilestoneView, string> = {
 
 export function MilestoneBadge({ view }: { view: MilestoneView }) {
   return (
-    <span className={cn("badge-transition inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold", tone[mTone[view]])}>
+    <span className={cn("badge-transition inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold", tone[mTone[view]])}>
       {mLabel[view]}
     </span>
   );
@@ -40,7 +40,7 @@ export function MilestoneBadge({ view }: { view: MilestoneView }) {
 
 export function StatCard({ label, value, hint }: { label: string; value: string | number; hint?: string | undefined }) {
   return (
-    <div className="rounded-lg border bg-card p-5 shadow-soft">
+    <div className="rounded-xl border bg-card p-5 shadow-soft">
       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className="mt-2 font-display text-3xl font-semibold">{value}</p>
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
